@@ -112,3 +112,9 @@ export default function FacilityPage({ params }: { params: { id: string } }) {
   )
 }
 
+export async function generateStaticParams() {
+  return facilities.map((facility) => ({
+    id: facility.id.toString(),
+  }))
+}
+
