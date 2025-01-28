@@ -1,101 +1,72 @@
-import Image from "next/image";
+"use client"
+
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import StyledContent from "./components/StyledContent"
+import { useEffect, useState } from "react"
+
+// This would typically come from a database
+const facilities = [
+  { id: 1, name: "Library", averageRating: 0 },
+  { id: 2, name: "Cafeteria", averageRating: 0 },
+  { id: 3, name: "Parking Lot", averageRating: 0 },
+  { id: 4, name: "Sport Area", averageRating: 0 },
+  { id: 5, name: "Classroom", averageRating: 0 },
+  { id: 6, name: "Lab Room", averageRating: 0 },
+  { id: 7, name: "Hall", averageRating: 0 },
+  { id: 8, name: "Park", averageRating: 0 },
+  { id: 9, name: "Bathroom", averageRating: 0 },
+]
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [ratedFacilities, setRatedFacilities] = useState<number[]>([])
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const rated = JSON.parse(localStorage.getItem("ratedFacilities") || "[]")
+    setRatedFacilities(rated)
+  }, [])
+
+  return (
+    <StyledContent>
+      <div className="min-h-screen bg-[#f8f7fd] p-8">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-5xl text-center mb-12 custom-title">RATE YOUR CAMPUS SPOTS</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {facilities.map((facility) => (
+              <Card
+                key={facility.id}
+                className="group border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1"
+              >
+                <CardHeader className="bg-[#e2d9f3] border-b-4 border-black p-6">
+                  <CardTitle className="flex justify-between items-center text-xl custom-title">
+                    {facility.name}
+                    <div className="flex flex-col items-end">
+                      <span className="text-base font-normal bg-white px-3 py-1 rounded-full border-2 border-black">
+                        {facility.averageRating.toFixed(1)}
+                      </span>
+                      <span className="text-xs mt-1">
+                        {ratedFacilities.includes(facility.id) ? "You've rated" : "Not rated yet"}
+                      </span>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 bg-white">
+                  <Button
+                    asChild
+                    className="w-full bg-[#ffd966] hover:bg-[#ffd966]/90 text-black border-2 border-black font-bold text-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 hover:-translate-y-0.5"
+                  >
+                    <Link href={`/facility/${facility.id}`}>
+                      {ratedFacilities.includes(facility.id) ? "RATE AGAIN" : "RATE NOW!"}
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      </div>
+    </StyledContent>
+  )
 }
+
