@@ -1,21 +1,59 @@
 import { NextResponse } from "next/server"
 
+interface RatingPayload {
+  facilityId: string;
+  ratings: Record<string, number>;
+  feedback?: string;
+}
+
 export async function POST(request: Request) {
-  const body = await request.json()
+  try {
+    const body = await request.json() as RatingPayload
 
-  // Here you would typically save this data to your database
-  // You'd want to calculate an average rating from the aspect ratings
-  const averageRating =
-    Object.values(body.ratings).reduce((a: number, b: number) => a + b, 0) / Object.values(body.ratings).length
+    // Validate required fields
+    if (!body.facilityId || !body.ratings || Object.keys(body.ratings).length === 0) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
 
-  console.log("Received rating:", {
-    facilityId: body.facilityId,
-    averageRating,
-    aspectRatings: body.ratings,
-    feedback: body.feedback,
-  })
+    // Validate ratings are numbers between 1-5
+    const validRatings = Object.values(body.ratings).every(
+      rating => Number.isInteger(rating) && rating >= 1 && rating <= 5
+    )
+    
+    if (!validRatings) {
+      return NextResponse.json(
+        { error: "Ratings must be integers between 1 and 5" },
+        { status: 400 }
+      )
+    }
 
-  // For now, we'll just send back a success response
-  return NextResponse.json({ message: "Rating received successfully" })
+    const averageRating =
+      Object.values(body.ratings).reduce((a, b) => a + b, 0) / 
+      Object.values(body.ratings).length
+
+    console.log("Received rating:", {
+      facilityId: body.facilityId,
+      averageRating,
+      aspectRatings: body.ratings,
+      feedback: body.feedback,
+    })
+
+    return NextResponse.json(
+      { 
+        message: "Rating received successfully",
+        averageRating 
+      },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Error processing rating:", error)
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    )
+  }
 }
 
