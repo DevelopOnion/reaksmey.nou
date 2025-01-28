@@ -6,25 +6,52 @@ import { Button } from "@/components/ui/button"
 import StyledContent from "./components/StyledContent"
 import { useEffect, useState } from "react"
 
-// This would typically come from a database
-const facilities = [
-  { id: 1, name: "Library", averageRating: 0 },
-  { id: 2, name: "Cafeteria", averageRating: 0 },
-  { id: 3, name: "Parking Lot", averageRating: 0 },
-  { id: 4, name: "Sport Area", averageRating: 0 },
-  { id: 5, name: "Classroom", averageRating: 0 },
-  { id: 6, name: "Lab Room", averageRating: 0 },
-  { id: 7, name: "Hall", averageRating: 0 },
-  { id: 8, name: "Park", averageRating: 0 },
-  { id: 9, name: "Bathroom", averageRating: 0 },
-]
+interface Facility {
+  id: number
+  name: string
+  averageRating: number
+}
 
 export default function Home() {
+  const [facilities, setFacilities] = useState<Facility[]>([
+    { id: 1, name: "Library", averageRating: 0 },
+    { id: 2, name: "Cafeteria", averageRating: 0 },
+    { id: 3, name: "Parking Lot", averageRating: 0 },
+    { id: 4, name: "Sport Area", averageRating: 0 },
+    { id: 5, name: "Classroom", averageRating: 0 },
+    { id: 6, name: "Lab Room", averageRating: 0 },
+    { id: 7, name: "Hall", averageRating: 0 },
+    { id: 8, name: "Park", averageRating: 0 },
+    { id: 9, name: "Bathroom", averageRating: 0 },
+  ])
   const [ratedFacilities, setRatedFacilities] = useState<number[]>([])
+
+  const fetchFacilityRatings = async () => {
+    try {
+      const updatedFacilities = await Promise.all(
+        facilities.map(async (facility) => {
+          const response = await fetch(`/api/feedback/facility/${facility.id}`)
+          const data = await response.json()
+          return {
+            ...facility,
+            averageRating: data.average_rating
+          }
+        })
+      )
+      setFacilities(updatedFacilities)
+    } catch (error) {
+      console.error("Error fetching ratings:", error)
+    }
+  }
 
   useEffect(() => {
     const rated = JSON.parse(localStorage.getItem("ratedFacilities") || "[]")
     setRatedFacilities(rated)
+    fetchFacilityRatings()
+
+    // Refresh ratings every minute
+    const interval = setInterval(fetchFacilityRatings, 60000)
+    return () => clearInterval(interval)
   }, [])
 
   return (
