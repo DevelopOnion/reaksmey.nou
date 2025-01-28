@@ -30,16 +30,28 @@ export async function POST(request: Request) {
       )
     }
 
+    // Calculate average rating
     const averageRating =
       Object.values(body.ratings).reduce((a, b) => a + b, 0) / 
       Object.values(body.ratings).length
 
-    console.log("Received rating:", {
-      facilityId: body.facilityId,
-      averageRating,
-      aspectRatings: body.ratings,
-      feedback: body.feedback,
+    // Send feedback to FastAPI backend
+    const response = await fetch("http://localhost:9000/feedback/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: "anonymous", // You can implement user authentication later
+        rating: averageRating,
+        comment: body.feedback,
+        category: body.facilityId
+      }),
     })
+
+    if (!response.ok) {
+      throw new Error("Failed to submit feedback")
+    }
 
     return NextResponse.json(
       { 

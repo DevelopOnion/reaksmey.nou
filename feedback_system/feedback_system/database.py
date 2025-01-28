@@ -1,13 +1,18 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import os
 
-# Using SQLite for simplicity. This will create a file named 'feedback.db' in your current directory
-SQLALCHEMY_DATABASE_URL = "sqlite:///./feedback.db"
+# Get the current directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Create the SQLite engine. The check_same_thread=False argument is needed for SQLite only
+# Create the database URL - this will create the database in the feedback_system directory
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'feedback.db')}"
+
+# Create the SQLite engine
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False}  # Needed for SQLite
 )
 
 # Create a SessionLocal class
