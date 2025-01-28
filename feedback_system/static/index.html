@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Feedback System</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+        }
+        .feedback-form {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .feedback-list {
+            margin-top: 20px;
+        }
+        .feedback-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feedback System</h1>
+    
+    <div class="feedback-form">
+        <h2>Submit Feedback</h2>
+        <form id="feedbackForm">
+            <div>
+                <label for="user_id">User ID:</label>
+                <input type="text" id="user_id" name="user_id">
+            </div>
+            <div>
+                <label for="rating">Rating:</label>
+                <input type="number" id="rating" name="rating" min="1" max="5" step="0.5" required>
+            </div>
+            <div>
+                <label for="comment">Comment:</label>
+                <textarea id="comment" name="comment"></textarea>
+            </div>
+            <div>
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="general">General</option>
+                    <option value="service">Service</option>
+                    <option value="product">Product</option>
+                </select>
+            </div>
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+
+    <div class="feedback-list">
+        <h2>Recent Feedback</h2>
+        <div id="feedbackList"></div>
+    </div>
+
+    <div class="analytics">
+        <h2>Analytics</h2>
+        <div id="analyticsData"></div>
+    </div>
+
+    <script>
+        // Submit feedback
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                user_id: document.getElementById('user_id').value,
+                rating: parseFloat(document.getElementById('rating').value),
+                comment: document.getElementById('comment').value,
+                category: document.getElementById('category').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/feedback/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if (response.ok) {
+                    alert('Feedback submitted successfully!');
+                    loadFeedback();
+                    loadAnalytics();
+                    e.target.reset();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        // Load feedback
+        async function loadFeedback() {
+            try {
+                const response = await fetch('http://localhost:8000/feedback/');
+                const data = await response.json();
+                const feedbackList = document.getElementById('feedbackList');
+                feedbackList.innerHTML = data.map(feedback => `
+                    <div class="feedback-item">
+                        <p>Rating: ${feedback.rating}</p>
+                        <p>Comment: ${feedback.comment}</p>
+                        <p>Category: ${feedback.category}</p>
+                        <small>User: ${feedback.user_id}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('http://localhost:8000/feedback/analytics');
+                const data = await response.json();
+                document.getElementById('analyticsData').innerHTML = `
+                    <p>Total Feedback: ${data.total_feedback}</p>
+                    <p>Average Rating: ${data.average_rating.toFixed(2)}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Initial load
+        loadFeedback();
+        loadAnalytics();
+    </script>
+</body>
+</html> 
